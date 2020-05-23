@@ -1,0 +1,46 @@
+#######################################
+# Syntax Coloring Map
+#######################################
+# https://spencer.bliven.us/index.php/2012/01/18/arduino-ide-keywords/
+# KEYWORD1 Classes, datatypes, and C++ keywords
+# KEYWORD2 Methods and functions
+# KEYWORD3 setup and loop functions, as well as the Serial keywords
+# LITERAL1 Constants
+# LITERAL2 Built-in variables (unused by default)
+
+
+#######################################
+# Classes, datatypes (KEYWORD1)
+#######################################
+cmd_func_t	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+f	KEYWORD2
+
+cmd_set_streamfunc	KEYWORD2
+cmd_get_streamfunc	KEYWORD2
+cmd_set_streamprompt	KEYWORD2
+cmd_get_streamprompt	KEYWORD2
+
+cmd_register	KEYWORD2
+cmd_register_echo	KEYWORD2
+cmd_register_help	KEYWORD2
+
+cmd_begin	KEYWORD2
+cmd_add	KEYWORD2
+
+cmd_parse	KEYWORD2
+cmd_isprefix	KEYWORD2
+cmd_pollserial KEYWORD2
+
+######################################
+# Constants (LITERAL1)
+#######################################
+CMD_BUFSIZE	LITERAL1
+CMD_MAXARGS	LITERAL1
+CMD_REGISTRATION_SLOTS	LITERAL1
+CMD_PROMPT_SIZE	LITERAL1
+
+
