@@ -76,7 +76,8 @@ stat: 52/4=13.00
 stat: reset
 >> s s
 stat: 0/0
->> ```
+>> 
+```
 
 
 ## Streaming
@@ -86,6 +87,11 @@ Streaming allows data to be send to the arduino, without giving an explicit comm
 
 How streaming is enabled, and how it is stopped is up to the command, in this example `stat` uses `*` to toggle streaming mode.
 
+When `stat` enables streaming mode, it also changes the prompt: it no longer shows `>>` but rather the amount of numbers entered.
+So, in the example below, the user entered `stat *`, then `1 2 3`, followed by `4 5 6 7`, followed by `*`. 
+The `stat show` shows the statistics.
+
+The next iteration starts with `stat reset`, then the data `stat 1 2 * 3 4` followed by ` 5 6 * 7`.The `stat show` shows the statistics.
 
 ```text
 Welcome to the demo cmd.streaming
