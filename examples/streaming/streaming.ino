@@ -84,8 +84,8 @@ void setup() {
   Serial.println( F("or try streaming 'stat *', '1 2 3', '4 5 6 7', '*', and 'stat show'") );
   Serial.println( );
   cmd_begin();
-  cmd_register_echo(); // Use the built-in help command
-  cmd_register_help(); // Use the built-in echo command
+  cmd_register_echo(); // Use the built-in echo command
+  cmd_register_help(); // Use the built-in help command
   stat_register();     // Register our own stat command
 }
 

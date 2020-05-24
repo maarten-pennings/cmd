@@ -54,9 +54,9 @@ NOTES:
 ## Full
 
 The [full](examples/full/full.ino) demonstrates the command interpreter with one command added `stat`.
-The `stat` command accepts a list of (hexadecimal) numbers and counts and adds them,
-for example `stat 1 2 3` . 
-`stat reset` clears the counters to 0, `stat show` shows the counters.
+The `stat` command accepts a list of (hexadecimal) numbers and adds them to counters. 
+A typical call is for example `stat 1 2 3`, `stat show` shows the current values of the counters, and
+`stat reset` clears them.
 
 This is a sample run
 
@@ -83,16 +83,18 @@ stat: 0/0
 
 ## Streaming
 
-The [streaming](examples/streaming/streaming.ino) demonstrates the command interpreter, with the `stat` command, which now supports streaming.
+The [streaming](examples/streaming/streaming.ino) demonstrates the command interpreter, 
+again with the `stat` command, which now supports streaming.
 Streaming allows data to be send to the arduino, without giving an explicit command each time.
 
-How streaming is enabled, and how it is stopped is up to the command, in this example `stat` uses `*` to toggle streaming mode.
+How streaming is enabled, and how it is stopped is up to the command.
+In this example `stat` uses `*` to toggle streaming mode.
 
-When `stat` enables streaming mode, it also changes the prompt: it no longer shows `>>` but rather the amount of numbers entered.
-So, in the example below, the user entered `stat *`, then `1 2 3`, followed by `4 5 6 7`, followed by `*`. 
+When `stat` enables streaming mode, it also changes the prompt: 
+it no longer shows `>>` but rather the amount of numbers entered.
+So, in the example below, the user gives the command `stat *` (which enters streaming mode), 
+then `1 2 3`, followed by `4 5 6 7`, followed by `*` to stop streaming mode. 
 The `stat show` shows the statistics.
-
-The next iteration starts with `stat reset`, then the data `stat 1 2 * 3 4` followed by ` 5 6 * 7`.The `stat show` shows the statistics.
 
 ```text
 Welcome to the demo cmd.streaming
@@ -105,12 +107,6 @@ or try streaming 'stat *', '1 2 3', '4 5 6 7', '*', and 'stat show'
 000: 1 2 3
 003: 4 5 6 7
 007: *
->> stat show
-stat: 28/7=4.00
->> stat reset
-stat: reset
->> stat 1 2 * 3 4
-004: 5 6 * 7
 >> stat show
 stat: 28/7=4.00
 >> 

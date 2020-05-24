@@ -3,6 +3,10 @@
 #define __CMD_H__
 
 
+// Version of this library
+#define CMD_VERSION 2
+
+
 // Recall that F(xxx) puts literal xxx in PROGMEM _and_ makes it printable.
 // It uses PSTR() to map it to progmem, and f() to make it printable. Basically F(x) is f(PSTR(x))
 // For some reason, Arduino defines PSTR() and F(), but not f().
@@ -58,6 +62,10 @@ bool cmd_parse(char*s,uint16_t*v) ;
 bool cmd_isprefix(const char *str, const char *prefix);
 // Reads Serial and calls cmd_add()
 void cmd_pollserial( void );
+// When cmd_pollserial() detects Serial buffer overflows it steps an error counter
+void cmd_steperrorcount( void );
+// The current error counter can be obtained with this function; as a side effect it clears the counter.
+int cmd_geterrorcount( void );
 
 
 #endif

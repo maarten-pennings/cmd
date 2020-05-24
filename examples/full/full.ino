@@ -67,8 +67,8 @@ void setup() {
   Serial.println( F("Type 'help' for help") );
   Serial.println( F("Try 'stat 1 2 3' and 'stat show'") );
   cmd_begin();
-  cmd_register_echo(); // Use the built-in help command
-  cmd_register_help(); // Use the built-in echo command
+  cmd_register_echo(); // Use the built-in echo command
+  cmd_register_help(); // Use the built-in help command
   stat_register();     // Register our own stat command
 }
 

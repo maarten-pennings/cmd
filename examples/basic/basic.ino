@@ -10,8 +10,8 @@ void setup() {
   Serial.println( );
   Serial.println( F("Type 'help' for help") );
   cmd_begin();
-  cmd_register_echo(); // Use the built-in help command
-  cmd_register_help(); // Use the built-in echo command
+  cmd_register_echo(); // Use the built-in echo command
+  cmd_register_help(); // Use the built-in help command
 }
 
 void loop() {

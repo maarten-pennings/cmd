@@ -44,8 +44,6 @@ static cmd_desc_t * cmd_find(char * name ) {
 
 
 // The state machine for receiving characters via Serial
-#define CMD_BUFSIZE 128
-#define CMD_MAXARGS 32
 static char       cmd_buf[CMD_BUFSIZE];              // Incoming chars
 static int        cmd_ix;                            // Fill pointer into cmd_buf
 static bool       cmd_echo;                          // Command interpreter should echo incoming chars
@@ -198,6 +196,20 @@ bool cmd_isprefix(const char *str, const char *prefix) {
 }
 
 
+static int cmd_errorcount= 0;
+
+void cmd_steperrorcount( void ) {
+  cmd_errorcount++;
+}
+
+
+int cmd_geterrorcount( void ) {
+  int current= cmd_errorcount;
+  cmd_errorcount= 0;
+  return current;
+}
+
+
 void cmd_pollserial( void ) {
   // Check incoming serial chars
   int n= 0; // Counts number of bytes read, this is roughly the number of bytes in the UART buffer
@@ -205,12 +217,14 @@ void cmd_pollserial( void ) {
     int ch= Serial.read();
     if( ch==-1 ) break;
     if( ++n==SERIAL_RX_BUFFER_SIZE ) { // Possible UART buffer overflow
+      cmd_steperrorcount();
       Serial.println(); Serial.println( F("WARNING: Serial overflow") ); Serial.println(); 
     }
     // Process read char by feeding it to command interpreter
     cmd_add(ch);
   }
 }
+
 
 
 // Commands ========================================================================
@@ -221,6 +235,11 @@ static void cmd_echo_print() { Serial.print(F("echo: ")); Serial.println(cmd_ech
 static void cmd_main_echo(int argc, char * argv[]) {
   if( argc==1 ) {
     cmd_echo_print();
+    return;
+  }
+  if( argc==2 && cmd_isprefix(PSTR("errors"),argv[1]) ) {
+    int n= cmd_geterrorcount();
+    if( argv[0][0]!='@') { Serial.print(F("echo: errors: ")); Serial.println(n); }
     return;
   }
   if( argc==2 && cmd_isprefix(PSTR("enable"),argv[1]) ) {
@@ -248,6 +267,9 @@ static void cmd_main_echo(int argc, char * argv[]) {
 static const char cmd_echo_longhelp[] PROGMEM = 
   "SYNTAX: echo [line] <word>...\n"
   "- prints all words (useful in scripts)\n"
+  "SYNTAX: [@]echo errors\n"
+  "- shows and resets the number of communication errors detected"
+  "- with @ present, no feedback is printed\n"
   "SYNTAX: [@]echo [ enable | disable ]\n"
   "- without arguments shows status of terminal echoing\n"
   "- with arguments enables/disables terminal echoing\n"
