@@ -54,8 +54,9 @@ NOTES:
 ## Full
 
 The [full](examples/full/full.ino) demonstrates the command interpreter with one command added `stat`.
-The `stat` command accepts a list of (hexadecimal) numbers and counts and adds them. 
-`stat reset` sets the counters to 0, `stat show` shows the counters, and `stat 1 2 3` adds the numbers to the counters.
+The `stat` command accepts a list of (hexadecimal) numbers and counts and adds them,
+for example `stat 1 2 3` . 
+`stat reset` clears the counters to 0, `stat show` shows the counters.
 
 This is a sample run
 
@@ -82,7 +83,7 @@ stat: 0/0
 
 ## Streaming
 
-The [streaming](examples/streaming/streaming.ino) demonstrates the command interpreter, with the `stat`, which now supports streaming.
+The [streaming](examples/streaming/streaming.ino) demonstrates the command interpreter, with the `stat` command, which now supports streaming.
 Streaming allows data to be send to the arduino, without giving an explicit command each time.
 
 How streaming is enabled, and how it is stopped is up to the command, in this example `stat` uses `*` to toggle streaming mode.
