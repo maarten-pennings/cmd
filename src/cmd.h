@@ -4,7 +4,7 @@
 
 
 // Version of this library
-#define CMD_VERSION 2
+#define CMD_VERSION 3
 
 
 // Recall that F(xxx) puts literal xxx in PROGMEM _and_ makes it printable.

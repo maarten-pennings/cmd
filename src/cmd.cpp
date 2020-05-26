@@ -75,8 +75,8 @@ void cmd_begin() {
 void cmd_exec() {
   char * argv[ CMD_MAXARGS ];
   // Cut a trailing comment
-  char * cmt= strchr(cmd_buf,'#');
-  if( cmt!=0 ) { *cmt='\0'; cmd_ix= cmt-cmd_buf; } // trim comment
+  char * cmt= strchr(cmd_buf,'/');
+  if( cmt!=0 && *(cmt+1)=='/' ) { *cmt='\0'; cmd_ix= cmt-cmd_buf; } // trim comment
   // Find the arguments (set up argv/argc)
   int argc= 0;
   int ix=0;
@@ -86,27 +86,29 @@ void cmd_exec() {
     if( !(ix<cmd_ix) ) break;
     argv[argc]= &cmd_buf[ix];
     argc++;
+    if( argc>CMD_MAXARGS ) { Serial.println(F("ERROR: too many arguments"));  return; }
     // scan for end of word (ie space)
     while( (ix<cmd_ix) && ( cmd_buf[ix]!=' ' && cmd_buf[ix]!='\t' ) ) ix++;
     cmd_buf[ix]= '\0';
     ix++;
   }
   //for(ix=0; ix<argc; ix++) { Serial.print(ix); Serial.print("='"); Serial.print(argv[ix]); Serial.print("'"); Serial.println(""); }
-  // Execute command
-  if( argc==0 ) {
-    // Empty command entered
-    return; 
-  }
+  // Check from streaming
   if( cmd_streamfunc ) {
     cmd_streamfunc(argc, argv); // Streaming mode is active pass the data
     return;
   }
+  // Bail out when empty
+  if( argc==0 ) {
+    // Empty command entered
+    return; 
+  }
+  // Find the command
   char * s= argv[0];
   if( *s=='@' ) s++;
   cmd_desc_t * d= cmd_find(s);
+  // If a command is found, execute it 
   if( d!=0 ) {
-    // Found a command. Execute it 
-    cmd_streamfunc= 0;  // Clear streaming mode
     d->main(argc, argv ); // Execute handler of command
     return;
   } 
@@ -334,7 +336,7 @@ static const char cmd_help_longhelp[] PROGMEM =
   "- all commands may be shortened, for example 'help', 'hel', 'he', 'h'\n"
   "- all sub commands may be shortened, for example 'help help' to 'help h'\n"
   "- normal prompt is >>, other prompt indicates streaming mode\n"
-  "- commands may be suffixed with a comment starting with #\n"
+  "- commands may be suffixed with a comment starting with //\n"
   "- some commands support a @ as prefix; it suppresses output of that command\n"
 ;
 
