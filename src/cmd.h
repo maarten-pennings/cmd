@@ -34,8 +34,8 @@ typedef void (*cmd_func_t)( int argc, char * argv[] );
 // Registering returns -1 when registration failed. Can even be called before cmd_init()
 int cmd_register(cmd_func_t main, const char * name, const char * shorthelp, const char * longhelp);  
 // There are two standard commands, closely integrated with the command handler
-void cmd_register_echo(void);
-void cmd_register_help(void);
+void cmdecho_register(void);
+void cmdhelp_register(void);
 
 
 // Initializes the command interpreter (and prints the prompt).

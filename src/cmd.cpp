@@ -1,5 +1,4 @@
 // cmd.cpp - Command interpreter
-// cmd.cpp - Command interpreter
 
 
 #include <Arduino.h>
@@ -229,14 +228,14 @@ void cmd_pollserial( void ) {
 
 
 
-// Commands ========================================================================
+// Friend command: echo ================================================================
 
 
 // The handler for the "echo" command
-static void cmd_echo_print() { Serial.print(F("echo: ")); Serial.println(cmd_echo?F("enabled"):F("disabled")); }
-static void cmd_main_echo(int argc, char * argv[]) {
+static void cmdecho_print() { Serial.print(F("echo: ")); Serial.println(cmd_echo?F("enabled"):F("disabled")); }
+static void cmdecho_main(int argc, char * argv[]) {
   if( argc==1 ) {
-    cmd_echo_print();
+    cmdecho_print();
     return;
   }
   if( argc==2 && cmd_isprefix(PSTR("errors"),argv[1]) ) {
@@ -246,12 +245,12 @@ static void cmd_main_echo(int argc, char * argv[]) {
   }
   if( argc==2 && cmd_isprefix(PSTR("enable"),argv[1]) ) {
     cmd_echo= true;
-    if( argv[0][0]!='@') cmd_echo_print();
+    if( argv[0][0]!='@') cmdecho_print();
     return;
   }
   if( argc==2 && cmd_isprefix(PSTR("disable"),argv[1]) ) {
     cmd_echo= false;
-    if( argv[0][0]!='@') cmd_echo_print();
+    if( argv[0][0]!='@') cmdecho_print();
     return;
   }
   int start= 1;
@@ -266,7 +265,7 @@ static void cmd_main_echo(int argc, char * argv[]) {
 }
 
 
-static const char cmd_echo_longhelp[] PROGMEM = 
+static const char cmdecho_longhelp[] PROGMEM = 
   "SYNTAX: echo [line] <word>...\n"
   "- prints all words (useful in scripts)\n"
   "SYNTAX: [@]echo errors\n"
@@ -285,13 +284,16 @@ static const char cmd_echo_longhelp[] PROGMEM =
 ;
 
 
-void cmd_register_echo(void) {
-  cmd_register(cmd_main_echo, PSTR("echo"), PSTR("echo a message (or en/disables echoing)"), cmd_echo_longhelp);
+void cmdecho_register(void) {
+  cmd_register(cmdecho_main, PSTR("echo"), PSTR("echo a message (or en/disables echoing)"), cmdecho_longhelp);
 }
 
 
+// Friend command: help =================================================================
+
+
 // The handler for the "help" command
-static void cmd_main_help(int argc, char * argv[]) {
+static void cmdhelp_main(int argc, char * argv[]) {
   if( argc==1 ) {
     Serial.println(F("Available commands"));
     for( int i=0; i<cmd_descs_count; i++ ) {
@@ -327,7 +329,7 @@ static void cmd_main_help(int argc, char * argv[]) {
 }
 
 
-static const char cmd_help_longhelp[] PROGMEM = 
+static const char cmdhelp_longhelp[] PROGMEM = 
   "SYNTAX: help\n"
   "- lists all commands\n"
   "SYNTAX: help <cmd>\n"
@@ -341,6 +343,6 @@ static const char cmd_help_longhelp[] PROGMEM =
 ;
 
 
-void cmd_register_help(void) {
-  cmd_register(cmd_main_help, PSTR("help"), PSTR("gives help (try 'help help')"), cmd_help_longhelp);
+void cmdhelp_register(void) {
+  cmd_register(cmdhelp_main, PSTR("help"), PSTR("gives help (try 'help help')"), cmdhelp_longhelp);
 }

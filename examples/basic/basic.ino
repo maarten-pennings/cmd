@@ -1,8 +1,6 @@
 // basic.ino - An example for cmd; just the built-in commands
 
-
 #include "cmd.h"
-
 
 void setup() {
   Serial.begin(115200);
@@ -10,8 +8,8 @@ void setup() {
   Serial.println( );
   Serial.println( F("Type 'help' for help") );
   cmd_begin();
-  cmd_register_echo(); // Use the built-in echo command
-  cmd_register_help(); // Use the built-in help command
+  cmdecho_register();  // Use the built-in echo command
+  cmdhelp_register();  // Use the built-in help command
 }
 
 void loop() {
