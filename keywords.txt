@@ -25,8 +25,8 @@ cmd_set_streamprompt	KEYWORD2
 cmd_get_streamprompt	KEYWORD2
 
 cmd_register	KEYWORD2
-cmd_register_echo	KEYWORD2
-cmd_register_help	KEYWORD2
+cmdecho_register	KEYWORD2
+cmdhelp_register	KEYWORD2
 
 cmd_begin	KEYWORD2
 cmd_add	KEYWORD2
