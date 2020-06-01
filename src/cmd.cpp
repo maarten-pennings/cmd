@@ -169,10 +169,11 @@ const char * cmd_get_streamprompt(void) {
 // Parse a string to a hex number, returns false if there were errors. 
 // If true is returned, *v is the parsed value.
 bool cmd_parse(char*s,uint16_t*v) {
-  if( v==0 ) return false;
+  if( v==0 ) return false; 
   *v= 0;
-  if( s==0 ) return false;
-  if( *s==0 ) return false;
+  if( s==0 ) return false; // no string: not ok
+  if( *s==0 ) return false; // empty string: not ok
+  while( *s=='0' ) s++; // strip leading 0's
   if( strlen(s)>4 ) return false;
   while( *s!=0 ) {
     if     ( '0'<=*s && *s<='9' ) *v = (*v)*16 + *s - '0';
