@@ -142,6 +142,11 @@ void cmd_add(int ch) {
 }
 
 
+// Add all characters of a string (don't forget the \n)
+void cmd_addstr(const char * str) {
+  while( *str!='\0' ) cmd_add(*str++);  
+}
+
 // Helpers =========================================================================
 
 
