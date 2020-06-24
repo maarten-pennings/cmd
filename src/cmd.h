@@ -4,7 +4,7 @@
 
 
 // Version of this library
-#define CMD_VERSION 5
+#define CMD_VERSION 6
 
 
 // Recall that F(xxx) puts literal xxx in PROGMEM _and_ makes it printable.
@@ -25,6 +25,8 @@
 #define CMD_REGISTRATION_SLOTS 16
 // Size of buffer for the streaming prompt
 #define CMD_PROMPT_SIZE 10 
+// Size of buffer for cmd_prt
+#define CMD_PRT_SIZE 80 
 
 
 // A command must implement a 'main' function. It is much like C's main, it has argc and argv.
@@ -45,8 +47,6 @@ void cmd_add(int ch); // Suggested to use cmd_pollserial(), which reads chars fr
 void cmd_addstr(const char * str); // Convenient for automatic testing of command line processing
 
 
-// Helper functions
-
 // The command handler can support streaming (sending data without commands). 
 // To enable streaming, a command must install a streaming function (cmd_set_streamfunc).
 // Streaming is disabled via cmd_set_streamfunc(0).
@@ -57,16 +57,21 @@ void cmd_set_streamprompt(const char * prompt);
 const char * cmd_get_streamprompt(void);
 
 
+// Helper functions
+
+
 // Parse a string to a hex number. Returns false if there were errors. If true is returned, *v is the parsed value.
 bool cmd_parse(char*s,uint16_t*v) ;
 // Returns true iff `prefix` is a prefix of `str`. Note `str` must be in PROGMEM (`prefix` in RAM)
 bool cmd_isprefix(const char *str, const char *prefix);
 // Reads Serial and calls cmd_add()
 void cmd_pollserial( void );
+// A (formatting) printf towards Serial
+int  cmd_prt(const char *format, ...);
 // When cmd_pollserial() detects Serial buffer overflows it steps an error counter
 void cmd_steperrorcount( void );
 // The current error counter can be obtained with this function; as a side effect it clears the counter.
-int cmd_geterrorcount( void );
+int  cmd_geterrorcount( void );
 
 
 #endif

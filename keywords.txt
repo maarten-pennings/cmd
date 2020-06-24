@@ -19,11 +19,6 @@ cmd_func_t	KEYWORD1
 #######################################
 f	KEYWORD2
 
-cmd_set_streamfunc	KEYWORD2
-cmd_get_streamfunc	KEYWORD2
-cmd_set_streamprompt	KEYWORD2
-cmd_get_streamprompt	KEYWORD2
-
 cmd_register	KEYWORD2
 cmdecho_register	KEYWORD2
 cmdhelp_register	KEYWORD2
@@ -32,9 +27,17 @@ cmd_begin	KEYWORD2
 cmd_add	KEYWORD2
 cmd_addstr	KEYWORD2
 
+cmd_set_streamfunc	KEYWORD2
+cmd_get_streamfunc	KEYWORD2
+cmd_set_streamprompt	KEYWORD2
+cmd_get_streamprompt	KEYWORD2
+
 cmd_parse	KEYWORD2
 cmd_isprefix	KEYWORD2
 cmd_pollserial	KEYWORD2
+cmd_prt	KEYWORD2
+cmd_steperrorcount	KEYWORD2
+cmd_geterrorcount	KEYWORD2
 
 ######################################
 # Constants (LITERAL1)

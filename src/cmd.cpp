@@ -203,13 +203,26 @@ bool cmd_isprefix(const char *str, const char *prefix) {
 }
 
 
-static int cmd_errorcount= 0;
+// A (formatting) printf towards Serial
+static char cmd_prt_buf[CMD_PRT_SIZE];
+int cmd_prt(const char *format, ...) {
+  va_list args;
+  va_start(args, format);
+  int result = vsnprintf(cmd_prt_buf, CMD_PRT_SIZE, format, args);
+  Serial.print(cmd_prt_buf);
+  va_end(args);
+  return result;
+}
 
+
+// Steps the cmd error counter (observable via 'echo error')
+static int cmd_errorcount= 0;
 void cmd_steperrorcount( void ) {
   cmd_errorcount++;
 }
 
 
+// Returns and clears the cmd error counter
 int cmd_geterrorcount( void ) {
   int current= cmd_errorcount;
   cmd_errorcount= 0;
@@ -217,6 +230,8 @@ int cmd_geterrorcount( void ) {
 }
 
 
+// Check Serial for incoming chars, and feeds them to the command handler.
+// Flags buffer overflows via cmd_steperrorcount() - so observable via 'echo error'
 void cmd_pollserial( void ) {
   // Check incoming serial chars
   int n= 0; // Counts number of bytes read, this is roughly the number of bytes in the UART buffer
