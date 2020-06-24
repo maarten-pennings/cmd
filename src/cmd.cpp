@@ -55,7 +55,7 @@ static void cmd_prompt() {
   if( cmd_streamfunc ) {
     Serial.print( cmd_streamprompt );
   } else {
-    Serial.print(F(">> "));  
+    Serial.print( F(">> ") );  
   }
 }
 
@@ -125,7 +125,7 @@ void cmd_add(int ch) {
     if( cmd_echo ) cmd_prompt();
   } else if( ch=='\b' ) {
     if( cmd_ix>0 ) {
-      if( cmd_echo ) Serial.print(F("\b \b"));
+      if( cmd_echo ) Serial.print( F("\b \b") );
       cmd_ix--;
     } else {
       // backspace with no more chars in buf; ignore
@@ -133,9 +133,9 @@ void cmd_add(int ch) {
   } else {
     if( cmd_ix<CMD_BUFSIZE-1 ) {
       cmd_buf[cmd_ix++]= ch;
-      if( cmd_echo ) Serial.print((char)ch);
+      if( cmd_echo ) Serial.print( (char)ch );
     } else {
-      if( cmd_echo ) Serial.print(F("_\b"));
+      if( cmd_echo ) Serial.print( F("_\b") );
       // input buffer full
     }
   }
@@ -255,7 +255,7 @@ void cmd_pollserial( void ) {
     if( ch==-1 ) break;
     if( ++n==SERIAL_RX_BUFFER_SIZE ) { // Possible UART buffer overflow
       cmd_steperrorcount();
-      Serial.println(); Serial.println( F("WARNING: Serial overflow") ); Serial.println(); 
+      Serial.println(); Serial.println( F("WARNING: serial overflow") ); Serial.println(); 
     }
     // Process read char by feeding it to command interpreter
     cmd_add(ch);
@@ -340,7 +340,7 @@ static void cmdhelp_main(int argc, char * argv[]) {
   } else if( argc==2 ) {
     cmd_desc_t * d= cmd_find(argv[1]);
     if( d==0 ) {
-      Serial.println(F("ERROR: help: command not found (try 'help')"));    
+      Serial.println(F("ERROR: command not found (try 'help')"));    
     } else {
       // Copy chunks of longhelp in PROGMEM via RAM to Serial
       const char * str= d->longhelp;
@@ -360,7 +360,7 @@ static void cmdhelp_main(int argc, char * argv[]) {
       //  Serial.print((char)pgm_read_byte_near(d->longhelp+i));
     }
   } else {
-    Serial.println(F("ERROR: help: too many arguments"));
+    Serial.println(F("ERROR: too many arguments"));
   }
 }
 
