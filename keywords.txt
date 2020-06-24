@@ -35,7 +35,8 @@ cmd_get_streamprompt	KEYWORD2
 cmd_parse	KEYWORD2
 cmd_isprefix	KEYWORD2
 cmd_pollserial	KEYWORD2
-cmd_prt	KEYWORD2
+cmd_printf	KEYWORD2
+cmd_printf_P	KEYWORD2
 cmd_steperrorcount	KEYWORD2
 cmd_geterrorcount	KEYWORD2
 

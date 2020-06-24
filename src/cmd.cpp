@@ -204,12 +204,25 @@ bool cmd_isprefix(const char *str, const char *prefix) {
 
 
 // A (formatting) printf towards Serial
-static char cmd_prt_buf[CMD_PRT_SIZE];
-int cmd_prt(const char *format, ...) {
+// Note: to print string from PROGMEM, use %S (capital S)
+static char cmd_printf_buf[CMD_PRT_SIZE];
+int cmd_printf(const char *format, ...) {
   va_list args;
   va_start(args, format);
-  int result = vsnprintf(cmd_prt_buf, CMD_PRT_SIZE, format, args);
-  Serial.print(cmd_prt_buf);
+  int result = vsnprintf(cmd_printf_buf, CMD_PRT_SIZE, format, args);
+  Serial.print(cmd_printf_buf);
+  va_end(args);
+  return result;
+}
+
+
+// A (formatting) printf towards Serial (the format string is in PROGMEM)
+// Note: to print string from PROGMEM, use %S (capital S)
+int cmd_printf_P(/*PROGMEM*/const char *format, ...) {
+  va_list args;
+  va_start(args, format);
+  int result = vsnprintf_P(cmd_printf_buf, CMD_PRT_SIZE, format, args);
+  Serial.print(cmd_printf_buf);
   va_end(args);
   return result;
 }

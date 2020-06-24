@@ -67,7 +67,8 @@ bool cmd_isprefix(const char *str, const char *prefix);
 // Reads Serial and calls cmd_add()
 void cmd_pollserial( void );
 // A (formatting) printf towards Serial
-int  cmd_prt(const char *format, ...);
+int cmd_printf(const char *format, ...);
+int cmd_printf_P(/*PROGMEM*/const char *format, ...);
 // When cmd_pollserial() detects Serial buffer overflows it steps an error counter
 void cmd_steperrorcount( void );
 // The current error counter can be obtained with this function; as a side effect it clears the counter.
