@@ -204,7 +204,8 @@ bool cmd_isprefix(const char *str, const char *prefix) {
 
 
 // A (formatting) printf towards Serial
-// Note: to print string from PROGMEM, use %S (capital S)
+// Note: to print string from PROGMEM use %S (capital S), and PSTR for the string (but F also works)
+//   cmd_printf( "%S/%S\n", PSTR("foo"), F("bar") );
 static char cmd_printf_buf[CMD_PRT_SIZE];
 int cmd_printf(const char *format, ...) {
   va_list args;
@@ -217,7 +218,8 @@ int cmd_printf(const char *format, ...) {
 
 
 // A (formatting) printf towards Serial (the format string is in PROGMEM)
-// Note: to print string from PROGMEM, use %S (capital S)
+// Note: to print string from PROGMEM use %S (capital S), and PSTR for the string (but F also works). Format string must be PSTR()
+//   cmd_printf_P( PSTR("%S/%S\n"), PSTR("foo"), F("bar") );
 int cmd_printf_P(/*PROGMEM*/const char *format, ...) {
   va_list args;
   va_start(args, format);
