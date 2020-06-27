@@ -63,10 +63,10 @@ const char * cmd_get_streamprompt(void);
 // Parse a string to a hex number. Returns false if there were errors. If true is returned, *v is the parsed value.
 bool cmd_parse(char*s,uint16_t*v) ;
 // Returns true iff `prefix` is a prefix of `str`. Note `str` must be in PROGMEM (`prefix` in RAM)
-bool cmd_isprefix(const char *str, const char *prefix);
+bool cmd_isprefix(/*PROGMEM*/const char *str, const char *prefix);
 // Reads Serial and calls cmd_add()
 void cmd_pollserial( void );
-// A (formatting) printf towards Serial
+// A print towards Serial, just like Serial.print, but now with formatting as printf()
 int cmd_printf(const char *format, ...);
 int cmd_printf_P(/*PROGMEM*/const char *format, ...);
 // When cmd_pollserial() detects Serial buffer overflows it steps an error counter
