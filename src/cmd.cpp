@@ -122,7 +122,7 @@ void cmd_add(int ch) {
     cmd_buf[cmd_ix]= '\0'; // Terminate (make cmd_buf a c-string)
     cmd_exec();
     cmd_ix=0;
-    if( cmd_echo ) cmd_prompt();
+    cmd_prompt();
   } else if( ch=='\b' ) {
     if( cmd_ix>0 ) {
       if( cmd_echo ) Serial.print( F("\b \b") );
@@ -302,21 +302,21 @@ static void cmdecho_main(int argc, char * argv[]) {
 
 
 static const char cmdecho_longhelp[] PROGMEM = 
-  "SYNTAX: echo [line] <word>...\n"
-  "- prints all words (useful in scripts)\n"
-  "SYNTAX: [@]echo errors\n"
+  "SYNTAX: echo [line] <word>...\r\n"
+  "- prints all words (useful in scripts)\r\n"
+  "SYNTAX: [@]echo errors\r\n"
   "- shows and resets the number of communication errors detected"
-  "- with @ present, no feedback is printed\n"
-  "SYNTAX: [@]echo [ enable | disable ]\n"
-  "- with arguments enables/disables terminal echoing\n"
-  "- (disabled is useful in scripts; output is relevant, but input much less)\n"
-  "- with @ present, no feedback is printed\n"
-  "- without arguments shows status of terminal echoing\n"
-  "NOTES:\n"
-  "- 'echo line' prints a white line (there are no <word>s)\n"
-  "- 'echo line enable' prints 'enable'\n"
-  "- 'echo line disable' prints 'disable'\n"
-  "- 'echo line line' prints 'line'\n"
+  "- with @ present, no feedback is printed\r\n"
+  "SYNTAX: [@]echo [ enable | disable ]\r\n"
+  "- with arguments enables/disables terminal echoing\r\n"
+  "- (disabled is useful in scripts; output is relevant, but input much less)\r\n"
+  "- with @ present, no feedback is printed\r\n"
+  "- without arguments shows status of terminal echoing\r\n"
+  "NOTES:\r\n"
+  "- 'echo line' prints a white line (there are no <word>s)\r\n"
+  "- 'echo line enable' prints 'enable'\r\n"
+  "- 'echo line disable' prints 'disable'\r\n"
+  "- 'echo line line' prints 'line'\r\n"
 ;
 
 
@@ -366,16 +366,16 @@ static void cmdhelp_main(int argc, char * argv[]) {
 
 
 static const char cmdhelp_longhelp[] PROGMEM = 
-  "SYNTAX: help\n"
-  "- lists all commands\n"
-  "SYNTAX: help <cmd>\n"
-  "- gives detailed help on command <cmd>\n"
-  "NOTES:\n"
-  "- all commands may be shortened, for example 'help', 'hel', 'he', 'h'\n"
-  "- all sub commands may be shortened, for example 'help help' to 'help h'\n"
-  "- normal prompt is >>, other prompt indicates streaming mode\n"
-  "- commands may be suffixed with a comment starting with //\n"
-  "- some commands support a @ as prefix; it suppresses output of that command\n"
+  "SYNTAX: help\r\n"
+  "- lists all commands\r\n"
+  "SYNTAX: help <cmd>\r\n"
+  "- gives detailed help on command <cmd>\r\n"
+  "NOTES:\r\n"
+  "- all commands may be shortened, for example 'help', 'hel', 'he', 'h'\r\n"
+  "- all sub commands may be shortened, for example 'help help' to 'help h'\r\n"
+  "- normal prompt is >>, other prompt indicates streaming mode\r\n"
+  "- commands may be suffixed with a comment starting with //\r\n"
+  "- some commands support a @ as prefix; it suppresses output of that command\r\n"
 ;
 
 
