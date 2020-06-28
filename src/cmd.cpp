@@ -135,8 +135,8 @@ void cmd_add(int ch) {
       cmd_buf[cmd_ix++]= ch;
       if( cmd_echo ) Serial.print( (char)ch );
     } else {
-      if( cmd_echo ) Serial.print( F("_\b") );
-      // input buffer full
+      // Input buffer full, send "alarm" back, even with echo off
+      Serial.print( F("_\b") ); // Prefer visual instead of \a (bell)
     }
   }
 }
@@ -274,17 +274,25 @@ static void cmdecho_main(int argc, char * argv[]) {
     cmdecho_print();
     return;
   }
-  if( argc==2 && cmd_isprefix(PSTR("errors"),argv[1]) ) {
+  if( argc>=2 && cmd_isprefix(PSTR("errors"),argv[1]) ) {
+    if( argc==3 && cmd_isprefix(PSTR("step"),argv[2]) ) {
+      cmd_steperrorcount();
+      if( argv[0][0]!='@') Serial.println(F("echo: errors: stepped")); 
+      return;
+    }
+    if( argc!=2 ) { Serial.println(F("ERROR: unexpected argument after 'errors'")); return; }
     int n= cmd_geterrorcount();
     if( argv[0][0]!='@') { Serial.print(F("echo: errors: ")); Serial.println(n); }
     return;
   }
-  if( argc==2 && cmd_isprefix(PSTR("enable"),argv[1]) ) {
+  if( argc>=2 && cmd_isprefix(PSTR("enable"),argv[1]) ) {
+    if( argc!=2 ) { Serial.println(F("ERROR: unexpected argument after 'enable'")); return; }
     cmd_echo= true;
     if( argv[0][0]!='@') cmdecho_print();
     return;
   }
-  if( argc==2 && cmd_isprefix(PSTR("disable"),argv[1]) ) {
+  if( argc>=2 && cmd_isprefix(PSTR("disable"),argv[1]) ) {
+    if( argc!=2 ) { Serial.println(F("ERROR: unexpected argument after 'disable'")); return; }
     cmd_echo= false;
     if( argv[0][0]!='@') cmdecho_print();
     return;
@@ -304,9 +312,11 @@ static void cmdecho_main(int argc, char * argv[]) {
 static const char cmdecho_longhelp[] PROGMEM = 
   "SYNTAX: echo [line] <word>...\r\n"
   "- prints all words (useful in scripts)\r\n"
-  "SYNTAX: [@]echo errors\r\n"
-  "- shows and resets the number of communication errors detected"
-  "- with @ present, no feedback is printed\r\n"
+  "SYNTAX: [@]echo errors [step]\r\n"
+  "- without argument, shows and resets error counter\r\n"
+  "- with argument, steps the error counter\r\n"
+  "- with @ present, no feedback is printed (for silent reset or step)\r\n"
+  "- typically used for communication errors (serial rx buffer overflow)\r\n"
   "SYNTAX: [@]echo [ enable | disable ]\r\n"
   "- with arguments enables/disables terminal echoing\r\n"
   "- (disabled is useful in scripts; output is relevant, but input much less)\r\n"
