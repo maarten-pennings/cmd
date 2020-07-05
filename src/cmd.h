@@ -4,7 +4,7 @@
 
 
 // Version of this library
-#define CMD_VERSION 6
+#define CMD_VERSION 7
 
 
 // Recall that F(xxx) puts literal xxx in PROGMEM _and_ makes it printable.
@@ -45,6 +45,7 @@ void cmd_begin(void);
 // Add characters to the state machine of the command interpreter (firing a command on <CR>)
 void cmd_add(int ch); // Suggested to use cmd_pollserial(), which reads chars from Serial and calls cmd_add()
 void cmd_addstr(const char * str); // Convenient for automatic testing of command line processing
+void cmd_addstr_P(/*PROGMEM*/const char * str); // Same as above, but str in PROGMEN
 
 
 // The command handler can support streaming (sending data without commands). 

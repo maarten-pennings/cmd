@@ -26,6 +26,7 @@ cmdhelp_register	KEYWORD2
 cmd_begin	KEYWORD2
 cmd_add	KEYWORD2
 cmd_addstr	KEYWORD2
+cmd_addstr_P	KEYWORD2
 
 cmd_set_streamfunc	KEYWORD2
 cmd_get_streamfunc	KEYWORD2

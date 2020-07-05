@@ -147,6 +147,12 @@ void cmd_addstr(const char * str) {
   while( *str!='\0' ) cmd_add(*str++);  
 }
 
+// Add all characters of a string (don't forget the \n)
+void cmd_addstr_P(/*PROGMEM*/const char * str) {
+  char ch;
+  while( '\0' != (ch=pgm_read_byte(str++)) ) cmd_add(ch);  
+}
+
 // Helpers =========================================================================
 
 
