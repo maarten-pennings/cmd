@@ -218,6 +218,7 @@ int cmd_printf(const char *format, ...) {
   va_start(args, format);
   int result = vsnprintf(cmd_printf_buf, CMD_PRT_SIZE, format, args);
   Serial.print(cmd_printf_buf);
+  if( result>=CMD_PRT_SIZE ) Serial.print(F("\r\nOVERFLOW\r\n"));
   va_end(args);
   return result;
 }
@@ -231,6 +232,7 @@ int cmd_printf_P(/*PROGMEM*/const char *format, ...) {
   va_start(args, format);
   int result = vsnprintf_P(cmd_printf_buf, CMD_PRT_SIZE, format, args);
   Serial.print(cmd_printf_buf);
+  if( result>=CMD_PRT_SIZE ) Serial.print(F("\r\nOVERFLOW\r\n"));
   va_end(args);
   return result;
 }
