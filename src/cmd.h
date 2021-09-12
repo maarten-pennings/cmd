@@ -4,11 +4,15 @@
 
 
 // Version of this library
-#define CMD_VERSION "7.0.1"
+#define CMD_VERSION "8.0.0" 
+// Incompatible wrt 7: 
+//   echo errors -> echo faults
+//   cmd_parse -> cmd_parse_hex
 
 
+// For AVR (not relevant for ESP8266/ESP32)
 // Recall that F(xxx) puts literal xxx in PROGMEM _and_ makes it printable.
-// It uses PSTR() to map it to progmem, and f() to make it printable. Basically F(x) is f(PSTR(x))
+// It uses PSTR() to map it to PROGMEM, and f() to make it printable. Basically F(x) is f(PSTR(x))
 // For some reason, Arduino defines PSTR() and F(), but not f().
 // The macro f(xxx) assumes xxx is already a pointer to chars in PROGMEM' it only makes it printable.
 #ifndef f
@@ -36,24 +40,26 @@ typedef void (*cmd_func_t)( int argc, char * argv[] );
 // Registering returns -1 when registration failed. Can even be called before cmd_init()
 int cmd_register(cmd_func_t main, const char * name, const char * shorthelp, const char * longhelp);  
 // There are two standard commands, closely integrated with the command handler
-void cmdecho_register(void);
-void cmdhelp_register(void);
+int cmdecho_register(void);
+int cmdhelp_register(void);
 
 
-// Initializes the command interpreter (and prints the prompt).
-void cmd_begin(void);
+// Initializes the command interpreter and print the prompt.
+void cmd_begin();
 // Add characters to the state machine of the command interpreter (firing a command on <CR>)
 void cmd_add(int ch); // Suggested to use cmd_pollserial(), which reads chars from Serial and calls cmd_add()
 void cmd_addstr(const char * str); // Convenient for automatic testing of command line processing
 void cmd_addstr_P(/*PROGMEM*/const char * str); // Same as above, but str in PROGMEN
+int  cmd_pendingschars(); // Returns the number of (not yet executed) chars.
 
 
-// The command handler can support streaming (sending data without commands). 
-// To enable streaming, a command must install a streaming function (cmd_set_streamfunc).
+// The command handler can support streaming: sending data without commands. 
+// To enable streaming, a command must install a streaming function f with cmd_set_streamfunc(f).
 // Streaming is disabled via cmd_set_streamfunc(0).
 void cmd_set_streamfunc(cmd_func_t func);
 cmd_func_t cmd_get_streamfunc(void);
-// When streaming is enabled an different prompt is printed.
+// Default prompt is >>, but when streaming is enabled a different prompt will be printed.
+// Note 'prompt' will be copied to internal cmd_buf[CMD_BUFSIZE].
 void cmd_set_streamprompt(const char * prompt);
 const char * cmd_get_streamprompt(void);
 
@@ -61,8 +67,10 @@ const char * cmd_get_streamprompt(void);
 // Helper functions
 
 
-// Parse a string to a hex number. Returns false if there were errors. If true is returned, *v is the parsed value.
-bool cmd_parse(char*s,uint16_t*v) ;
+// Parse a string of a decimal number ("-12"). Returns false if there were errors. If true is returned, *v is the parsed value.
+bool cmd_parse_dec(char*s,int*v);
+// Parse a string of a hex number ("0A8F"). Returns false if there were errors. If true is returned, *v is the parsed value.
+bool cmd_parse_hex(char*s,uint16_t*v) ;
 // Returns true iff `prefix` is a prefix of `str`. Note `str` must be in PROGMEM (`prefix` in RAM)
 bool cmd_isprefix(/*PROGMEM*/const char *str, const char *prefix);
 // Reads Serial and calls cmd_add()

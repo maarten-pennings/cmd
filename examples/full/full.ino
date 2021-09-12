@@ -29,7 +29,7 @@ void cmdstat_main(int argc, char * argv[]) {
   }
   for( int i=1; i<argc; i++ ) {
     uint16_t val;
-    bool ok= cmd_parse(argv[i],&val) ;
+    bool ok= cmd_parse_hex(argv[i],&val) ;
     if( !ok ) {
       Serial.print(F("Error: sum: value must be hex '"));
       Serial.print(argv[i]);

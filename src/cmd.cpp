@@ -1,8 +1,7 @@
 // cmd.cpp - Command interpreter
-
+//#include <avr/pgmspace.h> // This library assumes most strings (command help texts) are in PROGMEM (flash, not RAM)
 
 #include <Arduino.h>
-#include <avr/pgmspace.h> // This library assumes most strings (command help texts) are in PROGMEM (flash, not RAM)
 #include "cmd.h"
 
 
@@ -60,7 +59,7 @@ static void cmd_prompt() {
 }
 
 
-// Initializes the command interpreter
+// Initializes the command interpreter and shows prompt
 void cmd_begin() {
   cmd_ix= 0;
   cmd_echo= true;
@@ -69,13 +68,12 @@ void cmd_begin() {
   cmd_prompt();
 }
 
-
 // Execute the entered command (terminated with a press on RETURN key)
-void cmd_exec() {
+static void cmd_exec() {
   char * argv[ CMD_MAXARGS ];
   // Cut a trailing comment
-  char * cmt= strchr(cmd_buf,'/');
-  if( cmt!=0 && *(cmt+1)=='/' ) { *cmt='\0'; cmd_ix= cmt-cmd_buf; } // trim comment
+  char * cmt= strstr(cmd_buf,"//");
+  if( cmt!=0 ) { *cmt='\0'; cmd_ix= cmt-cmd_buf; } // trim comment
   // Find the arguments (set up argv/argc)
   int argc= 0;
   int ix=0;
@@ -108,10 +106,13 @@ void cmd_exec() {
   cmd_desc_t * d= cmd_find(s);
   // If a command is found, execute it 
   if( d!=0 ) {
+    cmd_ix = 0; // Added because there might be a command that issues a command
     d->main(argc, argv ); // Execute handler of command
     return;
   } 
-  Serial.println(F("ERROR: command not found (try help)")); 
+  Serial.print(F("ERROR: command '")); 
+  Serial.print(s); 
+  Serial.println(F("' not found (try help)")); 
 }
 
 
@@ -122,7 +123,7 @@ void cmd_add(int ch) {
     cmd_buf[cmd_ix]= '\0'; // Terminate (make cmd_buf a c-string)
     cmd_exec();
     cmd_ix=0;
-    cmd_prompt();
+    if( cmd_echo ) cmd_prompt();
   } else if( ch=='\b' ) {
     if( cmd_ix>0 ) {
       if( cmd_echo ) Serial.print( F("\b \b") );
@@ -153,6 +154,11 @@ void cmd_addstr_P(/*PROGMEM*/const char * str) {
   while( '\0' != (ch=pgm_read_byte(str++)) ) cmd_add(ch);  
 }
 
+// Returns the number of (not yet executed) chars.
+int cmd_pendingschars() {
+  return cmd_ix;
+}
+
 // Helpers =========================================================================
 
 
@@ -177,9 +183,9 @@ const char * cmd_get_streamprompt(void) {
 }
 
 
-// Parse a string to a hex number, returns false if there were errors. 
+// Parse a string of a hex number ("0A8F"), returns false if there were errors. 
 // If true is returned, *v is the parsed value.
-bool cmd_parse(char*s,uint16_t*v) {
+bool cmd_parse_hex(char*s,uint16_t*v) {
   if( v==0 ) return false; 
   *v= 0;
   if( s==0 ) return false; // no string: not ok
@@ -193,6 +199,35 @@ bool cmd_parse(char*s,uint16_t*v) {
     else return false;
     s++;
   }
+  return true;
+}
+
+
+// Parse a string of a decimal number ("-12"), returns false if there were errors. 
+// If true is returned, *v is the parsed value.
+bool cmd_parse_dec(char*s,int*v) {
+  if( v==0 ) return false; 
+  *v= 0;
+  if( s==0 ) return false; // no string: not ok
+  if( *s==0 ) return false; // empty string: not ok
+  int sign=+1;
+  if( *s=='+' ) {
+    s++;
+    sign=+1;
+  } else if( *s=='-' ) {
+    s++;
+    sign=-1;
+  }
+  if( *s==0 ) return false; // empty string after sign: not ok
+  while( *s=='0' ) s++; // strip leading 0's
+  while( *s!=0 ) {
+    if( *s<'0' || '9'<*s ) return false;
+    int vv= (*v)*10 + *s - '0';
+    if( vv<*v ) return false; // overflow
+    *v = vv;
+    s++;
+  }
+  *v *= sign;
   return true;
 }
 
@@ -218,7 +253,7 @@ int cmd_printf(const char *format, ...) {
   va_start(args, format);
   int result = vsnprintf(cmd_printf_buf, CMD_PRT_SIZE, format, args);
   Serial.print(cmd_printf_buf);
-  if( result>=CMD_PRT_SIZE ) Serial.print(F("\r\nOVERFLOW\r\n"));
+  if( result>=CMD_PRT_SIZE ) Serial.print(F("\nOVERFLOW\n"));
   va_end(args);
   return result;
 }
@@ -232,7 +267,7 @@ int cmd_printf_P(/*PROGMEM*/const char *format, ...) {
   va_start(args, format);
   int result = vsnprintf_P(cmd_printf_buf, CMD_PRT_SIZE, format, args);
   Serial.print(cmd_printf_buf);
-  if( result>=CMD_PRT_SIZE ) Serial.print(F("\r\nOVERFLOW\r\n"));
+  if( result>=CMD_PRT_SIZE ) Serial.print(F("\nOVERFLOW\n"));
   va_end(args);
   return result;
 }
@@ -254,14 +289,22 @@ int cmd_geterrorcount( void ) {
 
 
 // Check Serial for incoming chars, and feeds them to the command handler.
-// Flags buffer overflows via cmd_steperrorcount() - so observable via 'echo error'
+// Flags buffer overflows via cmd_steperrorcount() - observable via 'echo error'
 void cmd_pollserial( void ) {
   // Check incoming serial chars
   int n= 0; // Counts number of bytes read, this is roughly the number of bytes in the UART buffer
   while( 1 ) {
     int ch= Serial.read();
     if( ch==-1 ) break;
-    if( ++n==SERIAL_RX_BUFFER_SIZE ) { // Possible UART buffer overflow
+    if( 
+#if defined(ESP8266) // #warning ESP8266
+        Serial.hasOverrun()
+#elif defined(ESP32) // #warning ESP32
+        ++n==256 // Hack; default RC buffer size is 256, see HardwareSerial.cpp line 55: _uart = uartBegin(...256...);
+#else // #warning AVR
+        ++n==SERIAL_RX_BUFFER_SIZE // Possible UART buffer overrun
+#endif
+    ) {
       cmd_steperrorcount();
       Serial.println(); Serial.println( F("WARNING: serial overflow") ); Serial.println(); 
     }
@@ -276,31 +319,28 @@ void cmd_pollserial( void ) {
 
 
 // The handler for the "echo" command
-static void cmdecho_print() { Serial.print(F("echo: ")); Serial.println(cmd_echo?F("enabled"):F("disabled")); }
+static void cmdecho_print() { Serial.print(F("echo: echoing ")); Serial.println(cmd_echo?F("enabled"):F("disabled")); }
 static void cmdecho_main(int argc, char * argv[]) {
   if( argc==1 ) {
     cmdecho_print();
     return;
   }
-  if( argc>=2 && cmd_isprefix(PSTR("errors"),argv[1]) ) {
-    if( argc==3 && cmd_isprefix(PSTR("step"),argv[2]) ) {
-      cmd_steperrorcount();
-      if( argv[0][0]!='@') Serial.println(F("echo: errors: stepped")); 
-      return;
-    }
-    if( argc!=2 ) { Serial.println(F("ERROR: unexpected argument after 'errors'")); return; }
-    int n= cmd_geterrorcount();
-    if( argv[0][0]!='@') { Serial.print(F("echo: errors: ")); Serial.println(n); }
+  if( argc==3 && cmd_isprefix(PSTR("faults"),argv[1]) && cmd_isprefix(PSTR("step"),argv[2]) ) {
+    cmd_steperrorcount();
+    if( argv[0][0]!='@') Serial.println(F("echo: faults: stepped")); 
     return;
   }
-  if( argc>=2 && cmd_isprefix(PSTR("enable"),argv[1]) ) {
-    if( argc!=2 ) { Serial.println(F("ERROR: unexpected argument after 'enable'")); return; }
+  if( argc==2 && cmd_isprefix(PSTR("faults"),argv[1]) ) {
+    int n= cmd_geterrorcount();
+    if( argv[0][0]!='@') { Serial.print(F("echo: faults: ")); Serial.println(n); }
+    return;
+  }
+  if( argc==2 && cmd_isprefix(PSTR("enabled"),argv[1]) ) {
     cmd_echo= true;
     if( argv[0][0]!='@') cmdecho_print();
     return;
   }
-  if( argc>=2 && cmd_isprefix(PSTR("disable"),argv[1]) ) {
-    if( argc!=2 ) { Serial.println(F("ERROR: unexpected argument after 'disable'")); return; }
+  if( argc==2 && cmd_isprefix(PSTR("disabled"),argv[1]) ) {
     cmd_echo= false;
     if( argv[0][0]!='@') cmdecho_print();
     return;
@@ -318,28 +358,29 @@ static void cmdecho_main(int argc, char * argv[]) {
 
 
 static const char cmdecho_longhelp[] PROGMEM = 
-  "SYNTAX: echo [line] <word>...\r\n"
-  "- prints all words (useful in scripts)\r\n"
-  "SYNTAX: [@]echo errors [step]\r\n"
-  "- without argument, shows and resets error counter\r\n"
-  "- with argument, steps the error counter\r\n"
-  "- with @ present, no feedback is printed (for silent reset or step)\r\n"
-  "- typically used for communication errors (serial rx buffer overflow)\r\n"
-  "SYNTAX: [@]echo [ enable | disable ]\r\n"
-  "- with arguments enables/disables terminal echoing\r\n"
-  "- (disabled is useful in scripts; output is relevant, but input much less)\r\n"
-  "- with @ present, no feedback is printed\r\n"
-  "- without arguments shows status of terminal echoing\r\n"
-  "NOTES:\r\n"
-  "- 'echo line' prints a white line (there are no <word>s)\r\n"
-  "- 'echo line enable' prints 'enable'\r\n"
-  "- 'echo line disable' prints 'disable'\r\n"
-  "- 'echo line line' prints 'line'\r\n"
+  "SYNTAX: echo [line] <word>...\n"
+  "- prints all words (useful in scripts)\n"
+  "SYNTAX: [@]echo faults [step]\n"
+  "- without argument, shows and resets error counter\n"
+  "- with argument 'step', steps the error counter\n"
+  "- with @ present, no feedback is printed (for silent reset or step)\n"
+  "- typically used for communication faults (serial rx buffer overflow)\n"
+  "SYNTAX: [@]echo [ enabled | disabled ]\n"
+  "- with arguments enables/disables terminal echoing\n"
+  "- (disabled is useful in scripts; output is relevant, but input much less)\n"
+  "- with @ present, no feedback is printed\n"
+  "- without arguments shows status of terminal echoing\n"
+  "NOTES:\n"
+  "- 'echo line' prints a white line (there are no <word>s)\n"
+  "- 'echo line faults' prints 'faults'\n"
+  "- 'echo line enabled' prints 'enabled'\n"
+  "- 'echo line disabled' prints 'disabled'\n"
+  "- 'echo line line' prints 'line'\n"
 ;
 
 
-void cmdecho_register(void) {
-  cmd_register(cmdecho_main, PSTR("echo"), PSTR("echo a message (or en/disables echoing)"), cmdecho_longhelp);
+int cmdecho_register(void) {
+  return cmd_register(cmdecho_main, PSTR("echo"), PSTR("echo a message (or en/disables echoing)"), cmdecho_longhelp);
 }
 
 
@@ -384,19 +425,19 @@ static void cmdhelp_main(int argc, char * argv[]) {
 
 
 static const char cmdhelp_longhelp[] PROGMEM = 
-  "SYNTAX: help\r\n"
-  "- lists all commands\r\n"
-  "SYNTAX: help <cmd>\r\n"
-  "- gives detailed help on command <cmd>\r\n"
-  "NOTES:\r\n"
-  "- all commands may be shortened, for example 'help', 'hel', 'he', 'h'\r\n"
-  "- all sub commands may be shortened, for example 'help help' to 'help h'\r\n"
-  "- normal prompt is >>, other prompt indicates streaming mode\r\n"
-  "- commands may be suffixed with a comment starting with //\r\n"
-  "- some commands support a @ as prefix; it suppresses output of that command\r\n"
+  "SYNTAX: help\n"
+  "- lists all commands\n"
+  "SYNTAX: help <cmd>\n"
+  "- gives detailed help on command <cmd>\n"
+  "NOTES:\n"
+  "- all commands may be shortened, for example 'help', 'hel', 'he', 'h'\n"
+  "- all sub commands may be shortened, for example 'help help' to 'help h'\n"
+  "- normal prompt is >>, other prompt indicates streaming mode\n"
+  "- commands may be suffixed with a comment starting with //\n"
+  "- some commands support a @ as prefix; it suppresses output of that command\n"
 ;
 
 
-void cmdhelp_register(void) {
-  cmd_register(cmdhelp_main, PSTR("help"), PSTR("gives help (try 'help help')"), cmdhelp_longhelp);
+int cmdhelp_register(void) {
+  return cmd_register(cmdhelp_main, PSTR("help"), PSTR("gives help (try 'help help')"), cmdhelp_longhelp);
 }

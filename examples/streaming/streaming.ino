@@ -18,9 +18,9 @@ void cmdstat_streamfunc( int argc, char * argv[] ) {
       // toggle streaming mode
       if( cmd_get_streamfunc()==0 ) cmd_set_streamfunc(cmdstat_streamfunc); else cmd_set_streamfunc(0);
     } else {
-      bool ok= cmd_parse(argv[i],&val) ;
+      bool ok= cmd_parse_hex(argv[i],&val) ;
       if( !ok ) {
-        Serial.print(F("Error: sum: value must be hex '"));
+        Serial.print(F("Error: value must be hex '"));
         Serial.print(argv[i]);
         Serial.println("'");
         return;
