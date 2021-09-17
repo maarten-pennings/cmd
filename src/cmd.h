@@ -4,8 +4,11 @@
 
 
 // Version of this library
-#define CMD_VERSION "8.0.0" 
-// Incompatible wrt 7: 
+#define CMD_VERSION "8.0.1" 
+// Fixed 8.0.0 -> 8.0.1:
+//   prompt again shown when echo is disabled
+// Incompatible 7.0.0 -> 8.0.0:
+//   prompt no longer shown when echo is disabled
 //   echo errors -> echo faults
 //   cmd_parse -> cmd_parse_hex
 

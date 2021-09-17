@@ -123,7 +123,7 @@ void cmd_add(int ch) {
     cmd_buf[cmd_ix]= '\0'; // Terminate (make cmd_buf a c-string)
     cmd_exec();
     cmd_ix=0;
-    if( cmd_echo ) cmd_prompt();
+    cmd_prompt(); // trigger for tests that cmd is finished
   } else if( ch=='\b' ) {
     if( cmd_ix>0 ) {
       if( cmd_echo ) Serial.print( F("\b \b") );
