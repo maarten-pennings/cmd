@@ -1,4 +1,5 @@
 // cmd.h - command interpreter
+// From https://github.com/maarten-pennings/cmd
 #ifndef __CMD_H__
 #define __CMD_H__
 
