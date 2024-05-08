@@ -78,15 +78,18 @@ void cmdstat_register(void) {
 void setup() {
   Serial.begin(115200);
   Serial.println( F("Welcome to the demo cmd.streaming") );
+  
+  cmd_init();
+  cmdecho_register();  // Use the built-in echo command
+  cmdhelp_register();  // Use the built-in help command
+  cmdstat_register();  // Register our own stat command
+
   Serial.println( );
   Serial.println( F("Type 'help' for help") );
   Serial.println( F("Try 'stat 1 2 3' and 'stat show'") );
   Serial.println( F("or try streaming 'stat *', '1 2 3', '4 5 6 7', '*', and 'stat show'") );
   Serial.println( );
-  cmd_begin();
-  cmdecho_register();  // Use the built-in echo command
-  cmdhelp_register();  // Use the built-in help command
-  cmdstat_register();  // Register our own stat command
+  cmd_prompt();
 }
 
 void loop() {

@@ -1,11 +1,19 @@
-// cmd.h - command interpreter
+// cmd.h - header for command interpreter
 // From https://github.com/maarten-pennings/cmd
 #ifndef __CMD_H__
 #define __CMD_H__
 
 
 // Version of this library
-#define CMD_VERSION "8.0.1" 
+#define CMD_VERSION "8.1.0" 
+// Changed 8.0.1 -> 8.1.0:
+//   cmd_begin() renamed to cmd_init()
+//   cmd_init() serial prints "init"
+//   cmd_init() no longer had prompt()
+//   cmd_prompt() ow public
+//   max number of commands from 16 to 20
+//   no longer prints incoming chars as hex on error
+//   echo now has wait option
 // Fixed 8.0.0 -> 8.0.1:
 //   prompt again shown when echo is disabled
 // Incompatible 7.0.0 -> 8.0.0:
@@ -30,7 +38,7 @@
 // When a command starts executing, it is split in arguments.
 #define CMD_MAXARGS 32
 // Total number of registration slots.
-#define CMD_REGISTRATION_SLOTS 16
+#define CMD_REGISTRATION_SLOTS 20
 // Size of buffer for the streaming prompt
 #define CMD_PROMPT_SIZE 10 
 // Size of buffer for cmd_prt
@@ -48,8 +56,10 @@ int cmdecho_register(void);
 int cmdhelp_register(void);
 
 
-// Initializes the command interpreter and print the prompt.
-void cmd_begin();
+// Initializes the command interpreter.
+void cmd_init();
+// Print the prompt when waiting for input (special variant when in streaming mode). Needed once after init().
+void cmd_prompt();
 // Add characters to the state machine of the command interpreter (firing a command on <CR>)
 void cmd_add(int ch); // Suggested to use cmd_pollserial(), which reads chars from Serial and calls cmd_add()
 void cmd_addstr(const char * str); // Convenient for automatic testing of command line processing

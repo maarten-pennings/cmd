@@ -1,4 +1,4 @@
-// cmd.cpp - Command interpreter
+// cmd.cpp - command interpreter
 // From https://github.com/maarten-pennings/cmd
 //#include <avr/pgmspace.h> // This library assumes most strings (command help texts) are in PROGMEM (flash, not RAM)
 
@@ -50,8 +50,8 @@ static cmd_func_t cmd_streamfunc;                    // If 0, no streaming, else
 static char       cmd_streamprompt[CMD_PROMPT_SIZE]; // If streaming (cmd_stream_main!=0), the streaming prompt
 
 
-// Print the prompt when waiting for input (special variant when in streaming mode)
-static void cmd_prompt() {
+// Print the prompt when waiting for input (special variant when in streaming mode). Needed once after init().
+void cmd_prompt() {
   if( cmd_streamfunc ) {
     Serial.print( cmd_streamprompt );
   } else {
@@ -60,13 +60,13 @@ static void cmd_prompt() {
 }
 
 
-// Initializes the command interpreter and shows prompt
-void cmd_begin() {
+// Initializes the command interpreter.
+void cmd_init() {
   cmd_ix= 0;
   cmd_echo= true;
   cmd_streamfunc= 0;
   cmd_streamprompt[0]= 0;
-  cmd_prompt();
+  Serial.printf("cmd  : init\n"); 
 }
 
 // Execute the entered command (terminated with a press on RETURN key)
@@ -346,6 +346,13 @@ static void cmdecho_main(int argc, char * argv[]) {
     if( argv[0][0]!='@') cmdecho_print();
     return;
   }
+  if( argc==3 && cmd_isprefix(PSTR("wait"),argv[1]) ) {
+    int ms;
+    if( ! cmd_parse_dec(argv[2],&ms) ) { Serial.printf("ERROR: error in wait time\n"); return; }
+    if( argv[0][0]!='@') { Serial.print(F("echo: wait: ")); Serial.println(ms); }
+    delay(ms);
+    return;
+  }
   int start= 1;
   if( cmd_isprefix(PSTR("line"),argv[1]) ) { start=2; }
   // This tries to restore the command line (put spaces back on the '\0's)
@@ -371,6 +378,9 @@ static const char cmdecho_longhelp[] PROGMEM =
   "- (disabled is useful in scripts; output is relevant, but input much less)\n"
   "- with @ present, no feedback is printed\n"
   "- without arguments shows status of terminal echoing\n"
+  "SYNTAX: [@]echo wait <time>\n"
+  "- waits <time> ms (might be useful in scripts)\n"
+  "- with @ present, no feedback is printed\n"
   "NOTES:\n"
   "- 'echo line' prints a white line (there are no <word>s)\n"
   "- 'echo line faults' prints 'faults'\n"
