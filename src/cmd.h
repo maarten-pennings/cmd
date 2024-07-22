@@ -5,7 +5,10 @@
 
 
 // Version of this library
-#define CMD_VERSION "8.1.0" 
+#define CMD_VERSION "8.2.0" 
+// Changed 8.1.0 -> 8.2.0:
+//   cmd_parse_dec(), cmd_parse_hex() now use const
+//   cmd_register() has switch for alphabetical order
 // Changed 8.0.1 -> 8.1.0:
 //   cmd_begin() renamed to cmd_init()
 //   cmd_init() serial prints "init"
@@ -71,10 +74,13 @@ int  cmd_pendingschars(); // Returns the number of (not yet executed) chars.
 // To enable streaming, a command must install a streaming function f with cmd_set_streamfunc(f).
 // Streaming is disabled via cmd_set_streamfunc(0).
 void cmd_set_streamfunc(cmd_func_t func);
+// Check which streaming function is installed (0 for none).
 cmd_func_t cmd_get_streamfunc(void);
 // Default prompt is >>, but when streaming is enabled a different prompt will be printed.
 // Note 'prompt' will be copied to internal cmd_buf[CMD_BUFSIZE].
+// Calling cmd_set_streamfunc(f) enables streaming; only when enabled the streamprompt is used.
 void cmd_set_streamprompt(const char * prompt);
+// Get the streaming prompt.
 const char * cmd_get_streamprompt(void);
 
 
@@ -82,15 +88,16 @@ const char * cmd_get_streamprompt(void);
 
 
 // Parse a string of a decimal number ("-12"). Returns false if there were errors. If true is returned, *v is the parsed value.
-bool cmd_parse_dec(char*s,int*v);
+bool cmd_parse_dec(const char*s,int*v);
 // Parse a string of a hex number ("0A8F"). Returns false if there were errors. If true is returned, *v is the parsed value.
-bool cmd_parse_hex(char*s,uint16_t*v) ;
+bool cmd_parse_hex(const char*s,uint16_t*v) ;
 // Returns true iff `prefix` is a prefix of `str`. Note `str` must be in PROGMEM (`prefix` in RAM)
 bool cmd_isprefix(/*PROGMEM*/const char *str, const char *prefix);
 // Reads Serial and calls cmd_add()
 void cmd_pollserial( void );
 // A print towards Serial, just like Serial.print, but now with formatting as printf()
 int cmd_printf(const char *format, ...);
+// A print towards Serial, just like Serial.print, but now with formatting as printf(), now from progmem
 int cmd_printf_P(/*PROGMEM*/const char *format, ...);
 // When cmd_pollserial() detects Serial buffer overflows it steps an error counter
 void cmd_steperrorcount( void );

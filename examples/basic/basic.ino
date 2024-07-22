@@ -1,6 +1,6 @@
 // basic.ino - An example for cmd; just the built-in commands
-
 #include "cmd.h"
+
 
 void setup() {
   Serial.begin(115200);
@@ -14,6 +14,7 @@ void setup() {
   Serial.println( F("Type 'help' for help") );
   cmd_prompt();
 }
+
 
 void loop() {
   cmd_pollserial();

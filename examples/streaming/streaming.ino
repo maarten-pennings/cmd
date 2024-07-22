@@ -1,6 +1,4 @@
 // streaming.ino - An example for cmd with a command that streams
-
-
 #include "cmd.h"
 
 
@@ -55,6 +53,7 @@ void cmdstat_main(int argc, char * argv[]) {
   cmdstat_streamfunc(argc-1, argv+1);
 }
 
+
 // Note cmd_register needs all strigs to be PROGMEM strings. For longhelp we do that manually
 const char cmdstat_longhelp[] PROGMEM = 
   "SYNTAX: stat reset\n"
@@ -65,6 +64,7 @@ const char cmdstat_longhelp[] PROGMEM =
   "- updates the statistic counters (sum and count)\n"
   "- a * toggle streaming mode\n"
 ;
+
 
 // Note cmd_register needs all strings to be PROGMEM strings. For the short string we do that inline with PSTR.
 void cmdstat_register(void) {
@@ -91,6 +91,7 @@ void setup() {
   Serial.println( );
   cmd_prompt();
 }
+
 
 void loop() {
   cmd_pollserial();

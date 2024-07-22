@@ -21,13 +21,25 @@ static cmd_desc_t cmd_descs[CMD_REGISTRATION_SLOTS];
 
 
 // The registration function for command descriptors (all strings in PROGMEM!)
+// Returns number of remaining free slots (or -1 and a Serial print if registration failed)
 int cmd_register(cmd_func_t main, const char * name, const char * shorthelp, const char * longhelp) {
-  if( cmd_descs_count >= CMD_REGISTRATION_SLOTS ) return -1;
-  cmd_descs[cmd_descs_count].main= main;
-  cmd_descs[cmd_descs_count].name= name;
-  cmd_descs[cmd_descs_count].shorthelp= shorthelp;
-  cmd_descs[cmd_descs_count].longhelp= longhelp;
+  // Is there still a free slot?
+  if( cmd_descs_count >= CMD_REGISTRATION_SLOTS ) { Serial.print(F("ERROR: command '")); Serial.print(name); Serial.println( F("' can not be registered (too many)") ); return -1; }
+  int slot = cmd_descs_count;
+  #if 0
+    // Command list is kept in alphabetical order (otherwise: registration order)
+    while( slot>0 && strcmp(name,cmd_descs[slot-1].name)<0 ) {
+      cmd_descs[slot] = cmd_descs[slot-1];
+      slot--;
+    }
+  #endif
   cmd_descs_count++;
+  
+  cmd_descs[slot].main= main;
+  cmd_descs[slot].name= name;
+  cmd_descs[slot].shorthelp= shorthelp;
+  cmd_descs[slot].longhelp= longhelp;
+  
   return CMD_REGISTRATION_SLOTS - cmd_descs_count;
 }
 
@@ -66,8 +78,9 @@ void cmd_init() {
   cmd_echo= true;
   cmd_streamfunc= 0;
   cmd_streamprompt[0]= 0;
-  Serial.printf("cmd  : init\n"); 
+  Serial.println( F("cmd  : init") ); 
 }
+
 
 // Execute the entered command (terminated with a press on RETURN key)
 static void cmd_exec() {
@@ -149,16 +162,19 @@ void cmd_addstr(const char * str) {
   while( *str!='\0' ) cmd_add(*str++);  
 }
 
+
 // Add all characters of a string (don't forget the \n)
 void cmd_addstr_P(/*PROGMEM*/const char * str) {
   char ch;
   while( '\0' != (ch=pgm_read_byte(str++)) ) cmd_add(ch);  
 }
 
+
 // Returns the number of (not yet executed) chars.
 int cmd_pendingschars() {
   return cmd_ix;
 }
+
 
 // Helpers =========================================================================
 
@@ -186,7 +202,7 @@ const char * cmd_get_streamprompt(void) {
 
 // Parse a string of a hex number ("0A8F"), returns false if there were errors. 
 // If true is returned, *v is the parsed value.
-bool cmd_parse_hex(char*s,uint16_t*v) {
+bool cmd_parse_hex(const char*s,uint16_t*v) {
   if( v==0 ) return false; 
   *v= 0;
   if( s==0 ) return false; // no string: not ok
@@ -206,7 +222,7 @@ bool cmd_parse_hex(char*s,uint16_t*v) {
 
 // Parse a string of a decimal number ("-12"), returns false if there were errors. 
 // If true is returned, *v is the parsed value.
-bool cmd_parse_dec(char*s,int*v) {
+bool cmd_parse_dec(const char*s,int*v) {
   if( v==0 ) return false; 
   *v= 0;
   if( s==0 ) return false; // no string: not ok

@@ -1,6 +1,4 @@
 // full.ino - An example for cmd; adding a simple statistics command
-
-
 #include "cmd.h"
 
 
@@ -10,6 +8,7 @@
 // The statistics counters
 int cmdstat_count=0;
 int cmdstat_sum=0;
+
 
 // The statistics command handler
 void cmdstat_main(int argc, char * argv[]) {
@@ -41,6 +40,7 @@ void cmdstat_main(int argc, char * argv[]) {
   }
 }
 
+
 // Note cmd_register needs all strigs to be PROGMEM strings. For longhelp we do that manually
 const char cmdstat_longhelp[] PROGMEM = 
   "SYNTAX: stat reset\n"
@@ -50,6 +50,7 @@ const char cmdstat_longhelp[] PROGMEM =
   "SYNTAX: stat <hexnum>...\n"
   "- updates the statistic counters (sum and count)\n"
 ;
+
 
 // Note cmd_register needs all strings to be PROGMEM strings. For the short string we do that inline with PSTR.
 void cmdstat_register(void) {
@@ -74,6 +75,7 @@ void setup() {
   Serial.println( F("Try 'stat 1 2 3' and 'stat show'") );
   cmd_prompt();
 }
+
 
 void loop() {
   cmd_pollserial();
