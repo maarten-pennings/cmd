@@ -364,7 +364,7 @@ static void cmdecho_main(int argc, char * argv[]) {
   }
   if( argc==3 && cmd_isprefix(PSTR("wait"),argv[1]) ) {
     int ms;
-    if( ! cmd_parse_dec(argv[2],&ms) ) { Serial.printf("ERROR: error in wait time\n"); return; }
+    if( ! cmd_parse_dec(argv[2],&ms) ) { Serial.println("ERROR: error in wait time"); return; }
     if( argv[0][0]!='@') { Serial.print(F("echo: wait: ")); Serial.println(ms); }
     delay(ms);
     return;
