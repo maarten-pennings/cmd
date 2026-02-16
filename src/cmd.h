@@ -4,8 +4,13 @@
 #define __CMD_H__
 
 
+#include <stdint.h> // uint16_t
+
+
 // Version of this library
-#define CMD_VERSION "8.2.0" 
+#define CMD_VERSION "8.2.1" 
+// Changed 8.2.0 -> 8.2.1:
+//   fix: printf -> println, added #include <stdint.h>
 // Changed 8.1.0 -> 8.2.0:
 //   cmd_parse_dec(), cmd_parse_hex() now use const
 //   cmd_register() has switch for alphabetical order
