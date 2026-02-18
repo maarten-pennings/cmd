@@ -8,7 +8,9 @@
 
 
 // Version of this library
-#define CMD_VERSION "8.2.1" 
+#define CMD_VERSION "8.2.2" 
+// Changed 8.2.1 -> 8.2.2:
+//   add cmd_parse_hex32(), add cmd_set_streampromptf()
 // Changed 8.2.0 -> 8.2.1:
 //   fix: printf -> println, added #include <stdint.h>
 // Changed 8.1.0 -> 8.2.0:
@@ -85,6 +87,7 @@ cmd_func_t cmd_get_streamfunc(void);
 // Note 'prompt' will be copied to internal cmd_buf[CMD_BUFSIZE].
 // Calling cmd_set_streamfunc(f) enables streaming; only when enabled the streamprompt is used.
 void cmd_set_streamprompt(const char * prompt);
+void cmd_set_streampromptf(const char *format, ...);
 // Get the streaming prompt.
 const char * cmd_get_streamprompt(void);
 
@@ -96,6 +99,8 @@ const char * cmd_get_streamprompt(void);
 bool cmd_parse_dec(const char*s,int*v);
 // Parse a string of a hex number ("0A8F"). Returns false if there were errors. If true is returned, *v is the parsed value.
 bool cmd_parse_hex(const char*s,uint16_t*v) ;
+// Parse a string of a hex number ("F1110A8F"), returns false if there were errors. If true is returned, *v is the parsed value.
+bool cmd_parse_hex32(const char*s,uint32_t*v);
 // Returns true iff `prefix` is a prefix of `str`. Note `str` must be in PROGMEM (`prefix` in RAM)
 bool cmd_isprefix(/*PROGMEM*/const char *str, const char *prefix);
 // Reads Serial and calls cmd_add()

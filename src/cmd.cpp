@@ -195,6 +195,14 @@ void cmd_set_streamprompt(const char * prompt) {
 }
 
 
+void cmd_set_streampromptf(const char *format, ...) {
+  va_list args;
+  va_start(args, format);
+  vsnprintf(cmd_streamprompt, CMD_PROMPT_SIZE, format, args);
+  va_end(args);
+}
+
+
 const char * cmd_get_streamprompt(void) {
   return cmd_streamprompt;
 }
@@ -209,6 +217,26 @@ bool cmd_parse_hex(const char*s,uint16_t*v) {
   if( *s==0 ) return false; // empty string: not ok
   while( *s=='0' ) s++; // strip leading 0's
   if( strlen(s)>4 ) return false;
+  while( *s!=0 ) {
+    if     ( '0'<=*s && *s<='9' ) *v = (*v)*16 + *s - '0';
+    else if( 'a'<=*s && *s<='f' ) *v = (*v)*16 + *s - 'a' + 10;
+    else if( 'A'<=*s && *s<='F' ) *v = (*v)*16 + *s - 'A' + 10;
+    else return false;
+    s++;
+  }
+  return true;
+}
+
+
+// Parse a string of a hex number ("F1110A8F"), returns false if there were errors. 
+// If true is returned, *v is the parsed value.
+bool cmd_parse_hex32(const char*s,uint32_t*v) {
+  if( v==0 ) return false; 
+  *v= 0;
+  if( s==0 ) return false; // no string: not ok
+  if( *s==0 ) return false; // empty string: not ok
+  while( *s=='0' ) s++; // strip leading 0's
+  if( strlen(s)>8 ) return false;
   while( *s!=0 ) {
     if     ( '0'<=*s && *s<='9' ) *v = (*v)*16 + *s - '0';
     else if( 'a'<=*s && *s<='f' ) *v = (*v)*16 + *s - 'a' + 10;

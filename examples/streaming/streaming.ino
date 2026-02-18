@@ -28,7 +28,7 @@ void cmdstat_streamfunc( int argc, char * argv[] ) {
     }
   }
   // Set the streaming prompt (will only be shown in streaming mode)
-  char buf[6]; snprintf(buf,sizeof buf, "%03d: ",cmdstat_count); cmd_set_streamprompt(buf);
+  cmd_set_streampromptf("%03d>> ",cmdstat_count); 
 }
 
 

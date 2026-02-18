@@ -32,8 +32,11 @@ cmd_set_streamfunc	KEYWORD2
 cmd_get_streamfunc	KEYWORD2
 cmd_set_streamprompt	KEYWORD2
 cmd_get_streamprompt	KEYWORD2
+cmd_set_streampromptf	KEYWORD2
 
-cmd_parse	KEYWORD2
+cmd_parse_dec	KEYWORD2
+cmd_parse_hex	KEYWORD2
+cmd_parse_hex32	KEYWORD2
 cmd_isprefix	KEYWORD2
 cmd_pollserial	KEYWORD2
 cmd_printf	KEYWORD2
