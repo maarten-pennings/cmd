@@ -8,7 +8,9 @@
 
 
 // Version of this library
-#define CMD_VERSION "8.2.2" 
+#define CMD_VERSION "8.2.3" 
+// Changed 8.2.2 -> 8.2.3:
+//   replaced all println by print(...\n) to get rid of \r\n in favor of \n
 // Changed 8.2.1 -> 8.2.2:
 //   add cmd_parse_hex32(), add cmd_set_streampromptf()
 // Changed 8.2.0 -> 8.2.1:

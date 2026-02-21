@@ -24,7 +24,7 @@ static cmd_desc_t cmd_descs[CMD_REGISTRATION_SLOTS];
 // Returns number of remaining free slots (or -1 and a Serial print if registration failed)
 int cmd_register(cmd_func_t main, const char * name, const char * shorthelp, const char * longhelp) {
   // Is there still a free slot?
-  if( cmd_descs_count >= CMD_REGISTRATION_SLOTS ) { Serial.print(F("ERROR: command '")); Serial.print(name); Serial.println( F("' can not be registered (too many)") ); return -1; }
+  if( cmd_descs_count >= CMD_REGISTRATION_SLOTS ) { Serial.print(F("ERROR: command '")); Serial.print(name); Serial.print( F("' can not be registered (too many)\n") ); return -1; }
   int slot = cmd_descs_count;
   #if 0
     // Command list is kept in alphabetical order (otherwise: registration order)
@@ -78,7 +78,7 @@ void cmd_init() {
   cmd_echo= true;
   cmd_streamfunc= 0;
   cmd_streamprompt[0]= 0;
-  Serial.println( F("cmd  : init") ); 
+  Serial.print( F("cmd  : init\n") ); 
 }
 
 
@@ -97,13 +97,13 @@ static void cmd_exec() {
     if( !(ix<cmd_ix) ) break;
     argv[argc]= &cmd_buf[ix];
     argc++;
-    if( argc>CMD_MAXARGS ) { Serial.println(F("ERROR: too many arguments"));  return; }
+    if( argc>CMD_MAXARGS ) { Serial.print(F("ERROR: too many arguments\n"));  return; }
     // scan for end of word (ie space)
     while( (ix<cmd_ix) && ( cmd_buf[ix]!=' ' && cmd_buf[ix]!='\t' ) ) ix++;
     cmd_buf[ix]= '\0';
     ix++;
   }
-  //for(ix=0; ix<argc; ix++) { Serial.print(ix); Serial.print("='"); Serial.print(argv[ix]); Serial.print("'"); Serial.println(""); }
+  //for(ix=0; ix<argc; ix++) { Serial.print(ix); Serial.print("='"); Serial.print(argv[ix]); Serial.print("'"); Serial.print("\n"); }
   // Check from streaming
   if( cmd_streamfunc ) {
     cmd_streamfunc(argc, argv); // Streaming mode is active pass the data
@@ -126,14 +126,14 @@ static void cmd_exec() {
   } 
   Serial.print(F("ERROR: command '")); 
   Serial.print(s); 
-  Serial.println(F("' not found (try help)")); 
+  Serial.print(F("' not found (try help)\n")); 
 }
 
 
 // Add characters to the state machine of the command interpreter (firing a command on <CR>)
 void cmd_add(int ch) {
   if( ch=='\n' || ch=='\r' ) {
-    if( cmd_echo ) Serial.println();
+    if( cmd_echo ) Serial.print(F("\n"));
     cmd_buf[cmd_ix]= '\0'; // Terminate (make cmd_buf a c-string)
     cmd_exec();
     cmd_ix=0;
@@ -351,7 +351,7 @@ void cmd_pollserial( void ) {
 #endif
     ) {
       cmd_steperrorcount();
-      Serial.println(); Serial.println( F("WARNING: serial overflow") ); Serial.println(); 
+      Serial.print( F("\nWARNING: serial overflow\n") ); 
     }
     // Process read char by feeding it to command interpreter
     cmd_add(ch);
@@ -364,7 +364,7 @@ void cmd_pollserial( void ) {
 
 
 // The handler for the "echo" command
-static void cmdecho_print() { Serial.print(F("echo: echoing ")); Serial.println(cmd_echo?F("enabled"):F("disabled")); }
+static void cmdecho_print() { Serial.print(F("echo: echoing ")); Serial.print(cmd_echo?F("enabled"):F("disabled")); Serial.print(F("\n")); }
 static void cmdecho_main(int argc, char * argv[]) {
   if( argc==1 ) {
     cmdecho_print();
@@ -372,12 +372,12 @@ static void cmdecho_main(int argc, char * argv[]) {
   }
   if( argc==3 && cmd_isprefix(PSTR("faults"),argv[1]) && cmd_isprefix(PSTR("step"),argv[2]) ) {
     cmd_steperrorcount();
-    if( argv[0][0]!='@') Serial.println(F("echo: faults: stepped")); 
+    if( argv[0][0]!='@') Serial.print(F("echo: faults: stepped\n")); 
     return;
   }
   if( argc==2 && cmd_isprefix(PSTR("faults"),argv[1]) ) {
     int n= cmd_geterrorcount();
-    if( argv[0][0]!='@') { Serial.print(F("echo: faults: ")); Serial.println(n); }
+    if( argv[0][0]!='@') { Serial.print(F("echo: faults: ")); Serial.print(n); Serial.print(F("\n")); }
     return;
   }
   if( argc==2 && cmd_isprefix(PSTR("enabled"),argv[1]) ) {
@@ -392,8 +392,8 @@ static void cmdecho_main(int argc, char * argv[]) {
   }
   if( argc==3 && cmd_isprefix(PSTR("wait"),argv[1]) ) {
     int ms;
-    if( ! cmd_parse_dec(argv[2],&ms) ) { Serial.println("ERROR: error in wait time"); return; }
-    if( argv[0][0]!='@') { Serial.print(F("echo: wait: ")); Serial.println(ms); }
+    if( ! cmd_parse_dec(argv[2],&ms) ) { Serial.print("ERROR: error in wait time\n"); return; }
+    if( argv[0][0]!='@') { Serial.print(F("echo: wait: ")); Serial.print(ms); Serial.print(F("\n")); }
     delay(ms);
     return;
   }
@@ -403,9 +403,9 @@ static void cmdecho_main(int argc, char * argv[]) {
   //char * s0=argv[start-1]+strlen(argv[start-1])+1;
   //char * s1=argv[argc-1];
   //for( char * p=s0; p<s1; p++ ) if( *p=='\0' ) *p=' ';
-  //Serial.println(s0); 
+  //Serial.print(s0); Serial.print(F("\n"));
   for( int i=start; i<argc; i++) { if(i>start) Serial.print(' '); Serial.print(argv[i]);  }
-  Serial.println();
+  Serial.print(F("\n"));
 }
 
 
@@ -445,16 +445,17 @@ int cmdecho_register(void) {
 // The handler for the "help" command
 static void cmdhelp_main(int argc, char * argv[]) {
   if( argc==1 ) {
-    Serial.println(F("Available commands"));
+    Serial.print(F("Available commands\n"));
     for( int i=0; i<cmd_descs_count; i++ ) {
       Serial.print(f(cmd_descs[i].name));
       Serial.print(F(" - "));
-      Serial.println(f(cmd_descs[i].shorthelp));
+      Serial.print(f(cmd_descs[i].shorthelp));
+      Serial.print(F("\n"));
     }
   } else if( argc==2 ) {
     cmd_desc_t * d= cmd_find(argv[1]);
     if( d==0 ) {
-      Serial.println(F("ERROR: command not found (try 'help')"));    
+      Serial.print(F("ERROR: command not found (try 'help')\n"));    
     } else {
       // Copy chunks of longhelp in PROGMEM via RAM to Serial
       const char * str= d->longhelp;
@@ -474,7 +475,7 @@ static void cmdhelp_main(int argc, char * argv[]) {
       //  Serial.print((char)pgm_read_byte_near(d->longhelp+i));
     }
   } else {
-    Serial.println(F("ERROR: too many arguments"));
+    Serial.print(F("ERROR: too many arguments\n"));
   }
 }
 
